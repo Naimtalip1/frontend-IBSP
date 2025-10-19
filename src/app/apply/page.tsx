@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import PersonalInfoForm from '@/components/application/PersonalInfoForm';
 import EducationForm from '@/components/application/EducationForm';
 import EmploymentHistoryForm from '@/components/application/EmploymentHistoryForm';
@@ -28,6 +29,8 @@ const STEPS = [
 ];
 
 export default function ApplicationPage({ saveAsProfile }: { saveAsProfile?: boolean } = {}) {
+  const searchParams = useSearchParams();
+  const jobId = searchParams.get('jobId');
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<ApplicationFormData>({
     personalInfo: initialPersonalInfo,
@@ -56,45 +59,126 @@ export default function ApplicationPage({ saveAsProfile }: { saveAsProfile?: boo
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    const token = localStorage.getItem('jobportal_token');
+    if (!token) {
+      alert('Please log in to continue');
+      window.location.href = '/auth';
+      return;
+    }
+
     if (saveAsProfile) {
-      // Save profile to localStorage
+      // Save profile to backend database
       try {
-        // Files cannot be serialized — only save metadata and non-file fields
-        const serializable = {
-          personalInfo: formData.personalInfo,
-          education: formData.education,
-          employmentHistory: formData.employmentHistory,
-          skills: formData.skills,
-          references: formData.references,
-          declaration: formData.declaration,
-        };
-        localStorage.setItem('jobportal_profile', JSON.stringify(serializable));
-        alert('Profile saved. You can now apply for jobs.');
-        // redirect back to profile summary
+        // Save personal info
+        const personalResponse = await fetch('http://localhost:5000/api/personal-info', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ personalInfo: formData.personalInfo }),
+        });
+
+        if (!personalResponse.ok) {
+          throw new Error('Failed to save personal information');
+        }
+
+        // Save education
+        if (formData.education) {
+          const educationResponse = await fetch('http://localhost:5000/api/education', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ education: formData.education }),
+          });
+
+          if (!educationResponse.ok) {
+            console.warn('Failed to save education data');
+          }
+        }
+
+        // Save employment history
+        if (formData.employmentHistory && formData.employmentHistory.length > 0) {
+          for (const employment of formData.employmentHistory) {
+            const employmentResponse = await fetch('http://localhost:5000/api/employment', {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ employment }),
+            });
+
+            if (!employmentResponse.ok) {
+              console.warn('Failed to save employment data');
+            }
+          }
+        }
+
+        // Save skills
+        if (formData.skills) {
+          const skillsResponse = await fetch('http://localhost:5000/api/skills', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ skills: formData.skills }),
+          });
+
+          if (!skillsResponse.ok) {
+            console.warn('Failed to save skills data');
+          }
+        }
+
+        alert('Profile saved successfully! You can now apply for jobs.');
         window.location.href = '/profile';
       } catch (err) {
         console.error('Error saving profile', err);
-        alert('Failed to save profile. See console for details.');
+        alert('Failed to save profile. Please try again.');
       }
       return;
     }
 
-    // Default apply submission (for job application submissions)
+    // Submit job application to backend
     try {
-      const user = JSON.parse(localStorage.getItem('jobportal_user') || '{}');
-      const applications = JSON.parse(localStorage.getItem('job_applications') || '[]');
-      const newApplication = {
-        id: Date.now().toString(),
-        user: { name: user.name, email: user.email },
-        submittedAt: new Date().toISOString(),
-        data: formData,
-      };
-      applications.push(newApplication);
-      localStorage.setItem('job_applications', JSON.stringify(applications));
+      if (!jobId) {
+        alert('No job selected for application');
+        return;
+      }
+
+      // First save all the profile data
+      await fetch('http://localhost:5000/api/personal-info', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ personalInfo: formData.personalInfo }),
+      });
+
+      // Then submit the job application
+      const applicationResponse = await fetch('http://localhost:5000/api/job-applications', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ jobId: parseInt(jobId) }),
+      });
+
+      if (!applicationResponse.ok) {
+        const error = await applicationResponse.json();
+        throw new Error(error.error || 'Failed to submit application');
+      }
+
       alert('Application submitted successfully! We will contact you soon.');
+      window.location.href = '/applied-jobs';
     } catch (err) {
-      console.error('Error saving application', err);
-      alert('Failed to submit application. See console for details.');
+      console.error('Error submitting application', err);
+      alert(err instanceof Error ? err.message : 'Failed to submit application. Please try again.');
     }
   };
 

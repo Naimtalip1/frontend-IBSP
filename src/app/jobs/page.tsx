@@ -2,7 +2,15 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { getJobs, Job } from '@/data/jobs';
+
+interface Job {
+  id: number;
+  title: string;
+  company: string;
+  description: string;
+  user_id: number;
+  created_at: string;
+}
 
 function getUser() {
   try { return JSON.parse(localStorage.getItem('jobportal_user') || 'null'); } catch { return null; }
@@ -13,57 +21,100 @@ function getApplied() {
 }
 
 export default function JobsPage() {
+  const [jobs, setJobs] = useState<Job[]>([]);
   const [applied, setApplied] = useState<string[]>([]);
   const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setUser(getUser());
     setApplied(getApplied());
+    fetchJobs();
   }, []);
+
+  const fetchJobs = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/jobs');
+      if (response.ok) {
+        const data = await response.json();
+        setJobs(data);
+      } else {
+        console.error('Failed to fetch jobs');
+      }
+    } catch (err) {
+      console.error('Error fetching jobs:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const apply = (job: Job) => {
     if (!user) {
       if (!confirm('You must be logged in and have a saved profile to apply. Go to login?')) {
         return;
       }
-      window.location.href = '/auth/login';
+      window.location.href = '/auth';
       return;
     }
 
-    // check profile exists
-    const profile = localStorage.getItem('jobportal_profile');
-    if (!profile) {
-      if (confirm('You need to complete your profile before applying. Go to profile?')) {
-        window.location.href = '/profile';
-      }
-      return;
-    }
-
-    const appliedList: string[] = getApplied();
-    if (appliedList.includes(job.id)) {
-      alert('You have already applied for this job.');
-      return;
-    }
-    appliedList.push(job.id);
-    localStorage.setItem('jobportal_applied', JSON.stringify(appliedList));
-    setApplied(appliedList);
-    alert('Application saved. You can view it under Applied Jobs.');
+    // Apply through backend API
+    applyForJob(job.id);
   };
+
+  const applyForJob = async (jobId: number) => {
+    try {
+      const token = localStorage.getItem('jobportal_token');
+      if (!token) {
+        alert('Please log in to apply for jobs');
+        return;
+      }
+
+      const response = await fetch('http://localhost:5000/api/job-applications', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ jobId }),
+      });
+
+      if (response.ok) {
+        alert('Application submitted successfully!');
+        // Update local applied list for UI
+        const appliedList = [...applied, jobId.toString()];
+        setApplied(appliedList);
+        localStorage.setItem('jobportal_applied', JSON.stringify(appliedList));
+      } else {
+        const error = await response.json();
+        alert(error.error || 'Failed to submit application');
+      }
+    } catch (err) {
+      alert('Error submitting application');
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="text-center">
+        <p>Loading jobs...</p>
+      </div>
+    );
+  }
 
   return (
     <div>
       <h1 className="text-3xl font-bold mb-8 text-[#303139] dark:text-[#f6f4f4]">Available Jobs</h1>
       <div className="grid gap-6">
-        {getJobs().map((job) => (
+        {jobs.map((job) => (
           <div key={job.id} className="bg-[#f6f4f4] dark:bg-[#303139] p-6 rounded-lg shadow-xl border border-[#76767b] dark:border-[#76767b] hover:border-[#2596be] dark:hover:border-[#2596be] transition-colors">
             <div className="flex justify-between items-start">
               <div className="flex-1">
                 <h3 className="text-xl font-semibold text-[#303139] dark:text-[#f6f4f4] mb-2">{job.title}</h3>
-                <p className="text-sm text-[#76767b] dark:text-[#d8c5c5] mb-3">{job.company} • {job.location}</p>
+                <p className="text-sm text-[#76767b] dark:text-[#d8c5c5] mb-3">{job.company}</p>
                 <p className="text-[#303139] dark:text-[#c18f8e] leading-relaxed">{job.description}</p>
+                <p className="text-xs text-gray-500 mt-2">Posted: {new Date(job.created_at).toLocaleDateString()}</p>
               </div>
               <div className="flex flex-col justify-center items-end gap-4 ml-6">
-                <div className="text-lg font-medium text-[#2596be] dark:text-[#2596be]">{job.salary}</div>
                 <div className="flex gap-3">
                   <Link
                     href={`/jobs/${job.id}`}
@@ -74,15 +125,20 @@ export default function JobsPage() {
                   <button
                     onClick={() => apply(job)}
                     className="px-6 py-3 bg-[#2596be] hover:bg-[#1e40af] text-[#f6f4f4] rounded-lg font-medium transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-                    disabled={applied.includes(job.id)}
+                    disabled={applied.includes(job.id.toString())}
                   >
-                    {applied.includes(job.id) ? 'Applied' : 'Apply Now'}
+                    {applied.includes(job.id.toString()) ? 'Applied' : 'Apply Now'}
                   </button>
                 </div>
               </div>
             </div>
           </div>
         ))}
+        {jobs.length === 0 && (
+          <div className="text-center py-8">
+            <p className="text-gray-500">No jobs available at the moment.</p>
+          </div>
+        )}
       </div>
     </div>
   );

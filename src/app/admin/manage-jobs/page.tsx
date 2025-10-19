@@ -1,46 +1,133 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { getJobs, saveJobs, Job } from '@/data/jobs';
+
+interface Job {
+  id: number;
+  title: string;
+  company: string;
+  description: string;
+  user_id: number;
+  created_at: string;
+}
 
 export default function ManageJobsPage() {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [editingJob, setEditingJob] = useState<Job | null>(null);
-  const [newJob, setNewJob] = useState<Partial<Job>>({});
+  const [newJob, setNewJob] = useState<{title: string; company: string; description: string}>({
+    title: '',
+    company: '',
+    description: ''
+  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    setJobs(getJobs());
+    fetchJobs();
   }, []);
 
-  const handleSave = () => {
-    if (editingJob) {
-      const updated = jobs.map(j => j.id === editingJob.id ? editingJob : j);
-      setJobs(updated);
-      saveJobs(updated);
-      setEditingJob(null);
-    } else {
-      const job: Job = {
-        id: `job-${Date.now()}`,
-        title: newJob.title || '',
-        company: newJob.company || '',
-        location: newJob.location || '',
-        salary: newJob.salary,
-        description: newJob.description,
-      };
-      const updated = [...jobs, job];
-      setJobs(updated);
-      saveJobs(updated);
-      setNewJob({});
+  const fetchJobs = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/jobs');
+      if (response.ok) {
+        const data = await response.json();
+        setJobs(data);
+      } else {
+        setError('Failed to fetch jobs');
+      }
+    } catch (err) {
+      setError('Unable to connect to server');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleDelete = (id: string) => {
-    if (confirm('Are you sure you want to delete this job?')) {
-      const updated = jobs.filter(j => j.id !== id);
-      setJobs(updated);
-      saveJobs(updated);
+  const handleSave = async () => {
+    try {
+      const token = localStorage.getItem('jobportal_token');
+      if (!token) {
+        alert('Please log in as admin');
+        return;
+      }
+
+      if (editingJob) {
+        // Update existing job
+        const response = await fetch(`http://localhost:5000/api/jobs/${editingJob.id}`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            title: editingJob.title,
+            company: editingJob.company,
+            description: editingJob.description
+          }),
+        });
+
+        if (response.ok) {
+          const updatedJob = await response.json();
+          setJobs(prev => prev.map(job => job.id === editingJob.id ? updatedJob : job));
+          setEditingJob(null);
+          alert('Job updated successfully!');
+        } else {
+          alert('Failed to update job');
+        }
+      } else {
+        // Create new job
+        const response = await fetch('http://localhost:5000/api/jobs', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(newJob),
+        });
+
+        if (response.ok) {
+          const createdJob = await response.json();
+          setJobs(prev => [...prev, createdJob]);
+          setNewJob({ title: '', company: '', description: '' });
+          alert('Job created successfully!');
+        } else {
+          alert('Failed to create job');
+        }
+      }
+    } catch (err) {
+      alert('Error saving job');
     }
   };
+
+  const handleDelete = async (id: number) => {
+    if (!confirm('Are you sure you want to delete this job?')) return;
+
+    try {
+      const token = localStorage.getItem('jobportal_token');
+      const response = await fetch(`http://localhost:5000/api/jobs/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        setJobs(prev => prev.filter(job => job.id !== id));
+        alert('Job deleted successfully!');
+      } else {
+        alert('Failed to delete job');
+      }
+    } catch (err) {
+      alert('Error deleting job');
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="max-w-6xl mx-auto p-6">
+        <div className="text-center">Loading jobs...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-6xl mx-auto p-6">
@@ -54,38 +141,26 @@ export default function ManageJobsPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <input
             type="text"
-            placeholder="Title"
+            placeholder="Job Title"
             value={editingJob?.title || newJob.title || ''}
             onChange={(e) => editingJob ? setEditingJob({...editingJob, title: e.target.value}) : setNewJob({...newJob, title: e.target.value})}
-            className="border border-gray-300 px-4 py-2 rounded"
+            className="border border-gray-300 px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-[#2596be]"
           />
           <input
             type="text"
-            placeholder="Company"
+            placeholder="Company Name"
             value={editingJob?.company || newJob.company || ''}
             onChange={(e) => editingJob ? setEditingJob({...editingJob, company: e.target.value}) : setNewJob({...newJob, company: e.target.value})}
-            className="border border-gray-300 px-4 py-2 rounded"
+            className="border border-gray-300 px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-[#2596be]"
           />
-          <input
-            type="text"
-            placeholder="Location"
-            value={editingJob?.location || newJob.location || ''}
-            onChange={(e) => editingJob ? setEditingJob({...editingJob, location: e.target.value}) : setNewJob({...newJob, location: e.target.value})}
-            className="border border-gray-300 px-4 py-2 rounded"
-          />
-          <input
-            type="text"
-            placeholder="Salary"
-            value={editingJob?.salary || newJob.salary || ''}
-            onChange={(e) => editingJob ? setEditingJob({...editingJob, salary: e.target.value}) : setNewJob({...newJob, salary: e.target.value})}
-            className="border border-gray-300 px-4 py-2 rounded"
-          />
+        </div>
+        <div className="mt-4">
           <textarea
-            placeholder="Description"
+            placeholder="Job Description"
             value={editingJob?.description || newJob.description || ''}
             onChange={(e) => editingJob ? setEditingJob({...editingJob, description: e.target.value}) : setNewJob({...newJob, description: e.target.value})}
-            className="border border-gray-300 px-4 py-2 rounded col-span-2"
-            rows={3}
+            className="w-full border border-gray-300 px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-[#2596be]"
+            rows={4}
           />
         </div>
         <div className="mt-4 flex gap-2">
@@ -115,20 +190,20 @@ export default function ManageJobsPage() {
               <div className="flex justify-between items-start">
                 <div>
                   <h3 className="text-lg font-medium text-[#2596be]">{job.title}</h3>
-                  <p className="text-sm text-gray-600">{job.company} - {job.location}</p>
-                  <p className="text-sm text-gray-500">{job.salary}</p>
-                  <p className="text-sm mt-2">{job.description}</p>
+                  <p className="text-sm text-gray-600">{job.company}</p>
+                  <p className="text-sm text-gray-500">Posted: {new Date(job.created_at).toLocaleDateString()}</p>
+                  <p className="text-sm mt-2 text-gray-700">{job.description}</p>
                 </div>
                 <div className="flex gap-2">
                   <button
                     onClick={() => setEditingJob(job)}
-                    className="px-3 py-1 bg-[#2596be] text-white rounded text-sm hover:bg-[#1e40af]"
+                    className="px-3 py-1 bg-[#2596be] text-white rounded text-sm hover:bg-[#1e40af] transition-colors"
                   >
                     Edit
                   </button>
                   <button
                     onClick={() => handleDelete(job.id)}
-                    className="px-3 py-1 bg-red-500 text-white rounded text-sm hover:bg-red-600"
+                    className="px-3 py-1 bg-red-500 text-white rounded text-sm hover:bg-red-600 transition-colors"
                   >
                     Delete
                   </button>
@@ -136,6 +211,9 @@ export default function ManageJobsPage() {
               </div>
             </div>
           ))}
+          {jobs.length === 0 && (
+            <p className="text-gray-500 text-center py-8">No jobs posted yet. Create your first job posting above.</p>
+          )}
         </div>
       </div>
     </div>

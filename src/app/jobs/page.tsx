@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { JOBS, Job } from '@/data/jobs';
+import { getJobs, Job } from '@/data/jobs';
 
 function getUser() {
   try { return JSON.parse(localStorage.getItem('jobportal_user') || 'null'); } catch { return null; }
@@ -54,7 +54,7 @@ export default function JobsPage() {
     <div>
       <h1 className="text-3xl font-bold mb-8 text-[#303139] dark:text-[#f6f4f4]">Available Jobs</h1>
       <div className="grid gap-6">
-        {JOBS.map((job) => (
+        {getJobs().map((job) => (
           <div key={job.id} className="bg-[#f6f4f4] dark:bg-[#303139] p-6 rounded-lg shadow-xl border border-[#76767b] dark:border-[#76767b] hover:border-[#2596be] dark:hover:border-[#2596be] transition-colors">
             <div className="flex justify-between items-start">
               <div className="flex-1">

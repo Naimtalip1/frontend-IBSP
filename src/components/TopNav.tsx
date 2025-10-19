@@ -15,7 +15,7 @@ function getUserFromStorage() {
 }
 
 export default function TopNav() {
-  const [user, setUser] = useState<{ name: string } | null>(null);
+  const [user, setUser] = useState<{ name: string; role: string } | null>(null);
   const pathname = usePathname();
   const { theme, toggleTheme } = useTheme();
 
@@ -43,15 +43,31 @@ export default function TopNav() {
       <div className="px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-12">
           <div className="flex items-center gap-8">
-            <Link href="/jobs" className="text-xl font-bold text-[#31313a] hover:text-[#1e40af] transition-colors">
-              JOBS
-            </Link>
-            <Link href="/applied-jobs" className="text-lg font-semibold text-[#31313a] hover:text-[#1e40af] transition-colors">
-              APPLIED JOBS
-            </Link>
-            <Link href="/profile" className="text-lg font-semibold text-[#31313a] hover:text-[#1e40af] transition-colors">
-              PROFILE
-            </Link>
+            {user?.role === 'admin' ? (
+              <>
+                <Link href="/admin/dashboard" className="text-xl font-bold text-[#31313a] hover:text-[#1e40af] transition-colors">
+                  DASHBOARD
+                </Link>
+                <Link href="/admin/manage-jobs" className="text-lg font-semibold text-[#31313a] hover:text-[#1e40af] transition-colors">
+                  MANAGE JOBS
+                </Link>
+                <Link href="/admin/manage-users" className="text-lg font-semibold text-[#31313a] hover:text-[#1e40af] transition-colors">
+                  MANAGE USERS
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link href="/jobs" className="text-xl font-bold text-[#31313a] hover:text-[#1e40af] transition-colors">
+                  JOBS
+                </Link>
+                <Link href="/applied-jobs" className="text-lg font-semibold text-[#31313a] hover:text-[#1e40af] transition-colors">
+                  APPLIED JOBS
+                </Link>
+                <Link href="/profile" className="text-lg font-semibold text-[#31313a] hover:text-[#1e40af] transition-colors">
+                  PROFILE
+                </Link>
+              </>
+            )}
           </div>
 
           <div className="flex items-center gap-4">

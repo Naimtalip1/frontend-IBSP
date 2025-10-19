@@ -7,7 +7,7 @@ export interface Job {
   description?: string;
 }
 
-export const JOBS: Job[] = [
+export const INITIAL_JOBS: Job[] = [
   {
     id: 'job-1',
     title: 'Frontend Developer',
@@ -46,3 +46,24 @@ export const JOBS: Job[] = [
     
   }
 ];
+
+export const getJobs = (): Job[] => {
+  if (typeof window === 'undefined') return INITIAL_JOBS;
+  try {
+    const stored = localStorage.getItem('jobs');
+    if (stored) {
+      return JSON.parse(stored);
+    } else {
+      localStorage.setItem('jobs', JSON.stringify(INITIAL_JOBS));
+      return INITIAL_JOBS;
+    }
+  } catch {
+    return INITIAL_JOBS;
+  }
+};
+
+export const saveJobs = (jobs: Job[]) => {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('jobs', JSON.stringify(jobs));
+  }
+};

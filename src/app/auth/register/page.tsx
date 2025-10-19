@@ -8,10 +8,11 @@ export default function RegisterPage() {
 
   const handleRegister = (e: React.FormEvent) => {
     e.preventDefault();
-    const user = { name: name || email.split('@')[0], email };
+    const role = email === 'admin@jobportal.com' ? 'admin' : 'user';
+    const user = { name: name || email.split('@')[0], email, role };
     // In a real app you'd POST to an API. Here we just save to localStorage
     localStorage.setItem('jobportal_user', JSON.stringify(user));
-    window.location.href = '/jobs';
+    window.location.href = role === 'admin' ? '/admin/dashboard' : '/jobs';
   };
 
   return (

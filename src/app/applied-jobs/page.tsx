@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { JOBS } from '@/data/jobs';
+import { getJobs } from '@/data/jobs';
 
 export default function AppliedJobsPage() {
   const [applied, setApplied] = useState<string[]>([]);
@@ -11,7 +11,7 @@ export default function AppliedJobsPage() {
     try { const a = JSON.parse(localStorage.getItem('jobportal_applied') || '[]'); setApplied(a); } catch { setApplied([]); }
   }, []);
 
-  const appliedJobs = JOBS.filter(j => applied.includes(j.id));
+  const appliedJobs = getJobs().filter(j => applied.includes(j.id));
 
   return (
     <div>

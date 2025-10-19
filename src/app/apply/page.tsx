@@ -80,8 +80,22 @@ export default function ApplicationPage({ saveAsProfile }: { saveAsProfile?: boo
     }
 
     // Default apply submission (for job application submissions)
-    console.log('Form submitted:', formData);
-    alert('Application submitted successfully! We will contact you soon.');
+    try {
+      const user = JSON.parse(localStorage.getItem('jobportal_user') || '{}');
+      const applications = JSON.parse(localStorage.getItem('job_applications') || '[]');
+      const newApplication = {
+        id: Date.now().toString(),
+        user: { name: user.name, email: user.email },
+        submittedAt: new Date().toISOString(),
+        data: formData,
+      };
+      applications.push(newApplication);
+      localStorage.setItem('job_applications', JSON.stringify(applications));
+      alert('Application submitted successfully! We will contact you soon.');
+    } catch (err) {
+      console.error('Error saving application', err);
+      alert('Failed to submit application. See console for details.');
+    }
   };
 
   const isStepComplete = (step: number): boolean => {

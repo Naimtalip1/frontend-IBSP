@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { JOBS, Job } from '@/data/jobs';
+import { getJobs, Job } from '@/data/jobs';
 
 function getUser() {
   try { return JSON.parse(localStorage.getItem('jobportal_user') || 'null'); } catch { return null; }
@@ -21,7 +21,7 @@ export default function JobDetailPage() {
   const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
-    const foundJob = JOBS.find(j => j.id === jobId);
+    const foundJob = getJobs().find(j => j.id === jobId);
     setJob(foundJob || null);
     setUser(getUser());
     setApplied(getApplied());

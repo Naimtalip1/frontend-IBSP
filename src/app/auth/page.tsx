@@ -10,10 +10,11 @@ export default function LoginPage() {
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     // very simple login: store name and email in localStorage
-    const user = { name: name || email.split('@')[0], email };
+    const role = email === 'admin@jobportal.com' ? 'admin' : 'user';
+    const user = { name: name || email.split('@')[0], email, role };
     localStorage.setItem('jobportal_user', JSON.stringify(user));
-    // redirect to jobs
-    window.location.href = '/jobs';
+    // redirect based on role
+    window.location.href = role === 'admin' ? '/admin/dashboard' : '/jobs';
   };
 
   return (

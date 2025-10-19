@@ -7,17 +7,46 @@ interface Job {
   title: string;
   company: string;
   description: string;
+  location?: string;
+  salary_min?: string;
+  salary_max?: string;
+  salary_currency?: string;
+  job_type?: string;
+  experience_level?: string;
+  requirements?: string;
+  benefits?: string;
   user_id: number;
   created_at: string;
+  updated_at?: string;
 }
 
 export default function ManageJobsPage() {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [editingJob, setEditingJob] = useState<Job | null>(null);
-  const [newJob, setNewJob] = useState<{title: string; company: string; description: string}>({
+  const [newJob, setNewJob] = useState<{
+    title: string;
+    company: string;
+    description: string;
+    location: string;
+    salary_min: string;
+    salary_max: string;
+    salary_currency: string;
+    job_type: string;
+    experience_level: string;
+    requirements: string;
+    benefits: string;
+  }>({
     title: '',
     company: '',
-    description: ''
+    description: '',
+    location: '',
+    salary_min: '',
+    salary_max: '',
+    salary_currency: 'MYR',
+    job_type: 'Full-time',
+    experience_level: 'Entry Level',
+    requirements: '',
+    benefits: ''
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -61,7 +90,15 @@ export default function ManageJobsPage() {
           body: JSON.stringify({
             title: editingJob.title,
             company: editingJob.company,
-            description: editingJob.description
+            description: editingJob.description,
+            location: editingJob.location,
+            salary_min: editingJob.salary_min ? parseFloat(editingJob.salary_min) : null,
+            salary_max: editingJob.salary_max ? parseFloat(editingJob.salary_max) : null,
+            salary_currency: editingJob.salary_currency,
+            job_type: editingJob.job_type,
+            experience_level: editingJob.experience_level,
+            requirements: editingJob.requirements,
+            benefits: editingJob.benefits
           }),
         });
 
@@ -81,13 +118,37 @@ export default function ManageJobsPage() {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(newJob),
+          body: JSON.stringify({
+            title: newJob.title,
+            company: newJob.company,
+            description: newJob.description,
+            location: newJob.location,
+            salary_min: newJob.salary_min ? parseFloat(newJob.salary_min) : null,
+            salary_max: newJob.salary_max ? parseFloat(newJob.salary_max) : null,
+            salary_currency: newJob.salary_currency,
+            job_type: newJob.job_type,
+            experience_level: newJob.experience_level,
+            requirements: newJob.requirements,
+            benefits: newJob.benefits
+          }),
         });
 
         if (response.ok) {
           const createdJob = await response.json();
           setJobs(prev => [...prev, createdJob]);
-          setNewJob({ title: '', company: '', description: '' });
+          setNewJob({ 
+            title: '', 
+            company: '', 
+            description: '',
+            location: '',
+            salary_min: '',
+            salary_max: '',
+            salary_currency: 'MYR',
+            job_type: 'Full-time',
+            experience_level: 'Entry Level',
+            requirements: '',
+            benefits: ''
+          });
           alert('Job created successfully!');
         } else {
           alert('Failed to create job');
@@ -141,26 +202,101 @@ export default function ManageJobsPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <input
             type="text"
-            placeholder="Job Title"
+            placeholder="Job Title *"
             value={editingJob?.title || newJob.title || ''}
             onChange={(e) => editingJob ? setEditingJob({...editingJob, title: e.target.value}) : setNewJob({...newJob, title: e.target.value})}
             className="border border-gray-300 px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-[#2596be]"
+            required
           />
           <input
             type="text"
-            placeholder="Company Name"
+            placeholder="Company Name *"
             value={editingJob?.company || newJob.company || ''}
             onChange={(e) => editingJob ? setEditingJob({...editingJob, company: e.target.value}) : setNewJob({...newJob, company: e.target.value})}
             className="border border-gray-300 px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-[#2596be]"
+            required
+          />
+          <input
+            type="text"
+            placeholder="Location"
+            value={editingJob?.location || newJob.location || ''}
+            onChange={(e) => editingJob ? setEditingJob({...editingJob, location: e.target.value}) : setNewJob({...newJob, location: e.target.value})}
+            className="border border-gray-300 px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-[#2596be]"
+          />
+          <select
+            value={editingJob?.job_type || newJob.job_type || 'Full-time'}
+            onChange={(e) => editingJob ? setEditingJob({...editingJob, job_type: e.target.value}) : setNewJob({...newJob, job_type: e.target.value})}
+            className="border border-gray-300 px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-[#2596be]"
+          >
+            <option value="Full-time">Full-time</option>
+            <option value="Part-time">Part-time</option>
+            <option value="Contract">Contract</option>
+            <option value="Temporary">Temporary</option>
+            <option value="Internship">Internship</option>
+          </select>
+          <select
+            value={editingJob?.experience_level || newJob.experience_level || 'Entry Level'}
+            onChange={(e) => editingJob ? setEditingJob({...editingJob, experience_level: e.target.value}) : setNewJob({...newJob, experience_level: e.target.value})}
+            className="border border-gray-300 px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-[#2596be]"
+          >
+            <option value="Entry Level">Entry Level</option>
+            <option value="Mid Level">Mid Level</option>
+            <option value="Senior Level">Senior Level</option>
+            <option value="Executive">Executive</option>
+          </select>
+          <div className="flex gap-2">
+            <input
+              type="number"
+              placeholder="Salary Min"
+              value={editingJob?.salary_min || newJob.salary_min || ''}
+              onChange={(e) => editingJob ? setEditingJob({...editingJob, salary_min: e.target.value}) : setNewJob({...newJob, salary_min: e.target.value})}
+              className="flex-1 border border-gray-300 px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-[#2596be]"
+            />
+            <input
+              type="number"
+              placeholder="Salary Max"
+              value={editingJob?.salary_max || newJob.salary_max || ''}
+              onChange={(e) => editingJob ? setEditingJob({...editingJob, salary_max: e.target.value}) : setNewJob({...newJob, salary_max: e.target.value})}
+              className="flex-1 border border-gray-300 px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-[#2596be]"
+            />
+            <select
+              value={editingJob?.salary_currency || newJob.salary_currency || 'MYR'}
+              onChange={(e) => editingJob ? setEditingJob({...editingJob, salary_currency: e.target.value}) : setNewJob({...newJob, salary_currency: e.target.value})}
+              className="border border-gray-300 px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-[#2596be]"
+            >
+              <option value="MYR">MYR</option>
+              <option value="USD">USD</option>
+              <option value="SGD">SGD</option>
+              <option value="PHP">PHP</option>
+            </select>
+          </div>
+        </div>
+        <div className="mt-4">
+          <textarea
+            placeholder="Job Description *"
+            value={editingJob?.description || newJob.description || ''}
+            onChange={(e) => editingJob ? setEditingJob({...editingJob, description: e.target.value}) : setNewJob({...newJob, description: e.target.value})}
+            className="w-full border border-gray-300 px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-[#2596be]"
+            rows={3}
+            required
           />
         </div>
         <div className="mt-4">
           <textarea
-            placeholder="Job Description"
-            value={editingJob?.description || newJob.description || ''}
-            onChange={(e) => editingJob ? setEditingJob({...editingJob, description: e.target.value}) : setNewJob({...newJob, description: e.target.value})}
+            placeholder="Requirements (e.g., Skills, Education, Experience)"
+            value={editingJob?.requirements || newJob.requirements || ''}
+            onChange={(e) => editingJob ? setEditingJob({...editingJob, requirements: e.target.value}) : setNewJob({...newJob, requirements: e.target.value})}
             className="w-full border border-gray-300 px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-[#2596be]"
-            rows={4}
+            rows={3}
+          />
+        </div>
+        <div className="mt-4">
+          <textarea
+            placeholder="Benefits (e.g., Health Insurance, Flexible Schedule, etc.)"
+            value={editingJob?.benefits || newJob.benefits || ''}
+            onChange={(e) => editingJob ? setEditingJob({...editingJob, benefits: e.target.value}) : setNewJob({...newJob, benefits: e.target.value})}
+            className="w-full border border-gray-300 px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-[#2596be]"
+            rows={3}
           />
         </div>
         <div className="mt-4 flex gap-2">
@@ -188,22 +324,62 @@ export default function ManageJobsPage() {
           {jobs.map((job) => (
             <div key={job.id} className="border border-gray-200 rounded-lg p-4">
               <div className="flex justify-between items-start">
-                <div>
+                <div className="flex-1">
                   <h3 className="text-lg font-medium text-[#2596be]">{job.title}</h3>
                   <p className="text-sm text-gray-600">{job.company}</p>
+                  {job.location && <p className="text-sm text-gray-600">📍 {job.location}</p>}
                   <p className="text-sm text-gray-500">Posted: {new Date(job.created_at).toLocaleDateString()}</p>
-                  <p className="text-sm mt-2 text-gray-700">{job.description}</p>
+                  
+                  <div className="mt-3 grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                    {job.job_type && (
+                      <div className="bg-blue-50 p-2 rounded">
+                        <p className="text-gray-600">Type</p>
+                        <p className="font-medium">{job.job_type}</p>
+                      </div>
+                    )}
+                    {job.experience_level && (
+                      <div className="bg-green-50 p-2 rounded">
+                        <p className="text-gray-600">Level</p>
+                        <p className="font-medium">{job.experience_level}</p>
+                      </div>
+                    )}
+                    {job.salary_min && job.salary_max && (
+                      <div className="bg-yellow-50 p-2 rounded">
+                        <p className="text-gray-600">Salary</p>
+                        <p className="font-medium">{job.salary_min} - {job.salary_max} {job.salary_currency || 'MYR'}</p>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="mt-3 text-sm">
+                    <p className="text-gray-700 font-medium">Description:</p>
+                    <p className="text-gray-600">{job.description}</p>
+                  </div>
+
+                  {job.requirements && (
+                    <div className="mt-3 text-sm">
+                      <p className="text-gray-700 font-medium">Requirements:</p>
+                      <p className="text-gray-600">{job.requirements}</p>
+                    </div>
+                  )}
+
+                  {job.benefits && (
+                    <div className="mt-3 text-sm">
+                      <p className="text-gray-700 font-medium">Benefits:</p>
+                      <p className="text-gray-600">{job.benefits}</p>
+                    </div>
+                  )}
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-col gap-2 ml-4">
                   <button
                     onClick={() => setEditingJob(job)}
-                    className="px-3 py-1 bg-[#2596be] text-white rounded text-sm hover:bg-[#1e40af] transition-colors"
+                    className="px-3 py-1 bg-[#2596be] text-white rounded text-sm hover:bg-[#1e40af] transition-colors whitespace-nowrap"
                   >
                     Edit
                   </button>
                   <button
                     onClick={() => handleDelete(job.id)}
-                    className="px-3 py-1 bg-red-500 text-white rounded text-sm hover:bg-red-600 transition-colors"
+                    className="px-3 py-1 bg-red-500 text-white rounded text-sm hover:bg-red-600 transition-colors whitespace-nowrap"
                   >
                     Delete
                   </button>

@@ -70,7 +70,7 @@ export default function ApplicationPage({ saveAsProfile }: { saveAsProfile?: boo
       // Save profile to backend database
       try {
         // Save personal info
-        const personalResponse = await fetch('http://localhost:5000/api/personal-info', {
+        const personalResponse = await fetch('http://localhost:5000/api/profile/personal-info', {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -85,7 +85,7 @@ export default function ApplicationPage({ saveAsProfile }: { saveAsProfile?: boo
 
         // Save education
         if (formData.education) {
-          const educationResponse = await fetch('http://localhost:5000/api/education', {
+          const educationResponse = await fetch('http://localhost:5000/api/profile/education', {
             method: 'POST',
             headers: {
               'Authorization': `Bearer ${token}`,
@@ -95,14 +95,14 @@ export default function ApplicationPage({ saveAsProfile }: { saveAsProfile?: boo
           });
 
           if (!educationResponse.ok) {
-            console.warn('Failed to save education data');
+            // Failed to save education data
           }
         }
 
         // Save employment history
         if (formData.employmentHistory && formData.employmentHistory.length > 0) {
           for (const employment of formData.employmentHistory) {
-            const employmentResponse = await fetch('http://localhost:5000/api/employment', {
+            const employmentResponse = await fetch('http://localhost:5000/api/profile/employment-history', {
               method: 'POST',
               headers: {
                 'Authorization': `Bearer ${token}`,
@@ -112,7 +112,7 @@ export default function ApplicationPage({ saveAsProfile }: { saveAsProfile?: boo
             });
 
             if (!employmentResponse.ok) {
-              console.warn('Failed to save employment data');
+              // Failed to save employment data
             }
           }
         }
@@ -129,14 +129,14 @@ export default function ApplicationPage({ saveAsProfile }: { saveAsProfile?: boo
           });
 
           if (!skillsResponse.ok) {
-            console.warn('Failed to save skills data');
+            // Failed to save skills data
           }
         }
 
         alert('Profile saved successfully! You can now apply for jobs.');
         window.location.href = '/profile';
       } catch (err) {
-        console.error('Error saving profile', err);
+        // Error saving profile
         alert('Failed to save profile. Please try again.');
       }
       return;
@@ -150,7 +150,7 @@ export default function ApplicationPage({ saveAsProfile }: { saveAsProfile?: boo
       }
 
       // First save all the profile data
-      await fetch('http://localhost:5000/api/personal-info', {
+      await fetch('http://localhost:5000/api/profile/personal-info', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -177,7 +177,7 @@ export default function ApplicationPage({ saveAsProfile }: { saveAsProfile?: boo
       alert('Application submitted successfully! We will contact you soon.');
       window.location.href = '/applied-jobs';
     } catch (err) {
-      console.error('Error submitting application', err);
+      // Error submitting application
       alert(err instanceof Error ? err.message : 'Failed to submit application. Please try again.');
     }
   };

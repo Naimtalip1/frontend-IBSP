@@ -29,7 +29,7 @@ export default function RegisterPage() {
     }
 
     try {
-      const response = await fetch('http://localhost:5000/api/register', {
+      const response = await fetch('http://localhost:5000/api/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -41,7 +41,7 @@ export default function RegisterPage() {
 
       if (response.ok) {
         // Auto-login after successful registration
-        const loginResponse = await fetch('http://localhost:5000/api/login', {
+        const loginResponse = await fetch('http://localhost:5000/api/auth/login', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

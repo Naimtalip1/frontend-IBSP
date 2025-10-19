@@ -8,6 +8,14 @@ interface Job {
   title: string;
   company: string;
   description: string;
+  location?: string;
+  salary_min?: string;
+  salary_max?: string;
+  salary_currency?: string;
+  job_type?: string;
+  experience_level?: string;
+  requirements?: string;
+  benefits?: string;
   user_id: number;
   created_at: string;
 }
@@ -110,7 +118,28 @@ export default function JobsPage() {
             <div className="flex justify-between items-start">
               <div className="flex-1">
                 <h3 className="text-xl font-semibold text-[#303139] dark:text-[#f6f4f4] mb-2">{job.title}</h3>
-                <p className="text-sm text-[#76767b] dark:text-[#d8c5c5] mb-3">{job.company}</p>
+                <p className="text-sm text-[#76767b] dark:text-[#d8c5c5] mb-1">{job.company}</p>
+                {job.location && <p className="text-sm text-[#76767b] dark:text-[#d8c5c5] mb-3">📍 {job.location}</p>}
+                
+                {/* Job info badges */}
+                <div className="flex flex-wrap gap-2 mb-3">
+                  {job.job_type && (
+                    <span className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
+                      {job.job_type}
+                    </span>
+                  )}
+                  {job.experience_level && (
+                    <span className="inline-block bg-green-100 text-green-800 text-xs px-2 py-1 rounded">
+                      {job.experience_level}
+                    </span>
+                  )}
+                  {job.salary_min && job.salary_max && (
+                    <span className="inline-block bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded">
+                      {job.salary_min} - {job.salary_max} {job.salary_currency || 'MYR'}
+                    </span>
+                  )}
+                </div>
+
                 <p className="text-[#303139] dark:text-[#c18f8e] leading-relaxed">{job.description}</p>
                 <p className="text-xs text-gray-500 mt-2">Posted: {new Date(job.created_at).toLocaleDateString()}</p>
               </div>

@@ -2,8 +2,15 @@ export interface Job {
   id: string;
   title: string;
   company: string;
-  location: string;
+  location?: string;
   salary?: string;
+  salary_min?: string;
+  salary_max?: string;
+  salary_currency?: string;
+  job_type?: string;
+  experience_level?: string;
+  requirements?: string;
+  benefits?: string;
   description?: string;
 }
 

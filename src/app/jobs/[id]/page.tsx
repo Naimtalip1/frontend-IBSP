@@ -129,17 +129,17 @@ export default function JobDetailPage() {
             <div className="flex flex-wrap gap-3 mb-4">
               {job.salary_min && job.salary_max && (
                 <div className="px-4 py-2 bg-green-100 text-green-800 rounded-full font-medium">
-                  💰 {job.salary_min} - {job.salary_max} {job.salary_currency || 'MYR'}
+                   {job.salary_min} - {job.salary_max} {job.salary_currency || 'MYR'}
                 </div>
               )}
               {job.job_type && (
                 <div className="px-4 py-2 bg-blue-100 text-blue-800 rounded-full font-medium">
-                  💼 {job.job_type}
+                  {job.job_type}
                 </div>
               )}
               {job.experience_level && (
                 <div className="px-4 py-2 bg-purple-100 text-purple-800 rounded-full font-medium">
-                  🎯 {job.experience_level}
+                  {job.experience_level}
                 </div>
               )}
             </div>
@@ -162,7 +162,7 @@ export default function JobDetailPage() {
           {/* Job Description */}
           {job.description && (
             <div>
-              <h3 className="text-xl font-semibold text-[#303139] dark:text-[#f6f4f4] mb-4">📝 Job Description</h3>
+              <h3 className="text-xl font-semibold text-[#303139] dark:text-[#f6f4f4] mb-4">Job Description</h3>
               <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
                 <p className="text-[#303139] dark:text-[#c18f8e] leading-relaxed text-lg whitespace-pre-wrap">{job.description}</p>
               </div>
@@ -172,7 +172,7 @@ export default function JobDetailPage() {
           {/* Requirements */}
           {job.requirements && (
             <div>
-              <h3 className="text-xl font-semibold text-[#303139] dark:text-[#f6f4f4] mb-4">✅ Requirements</h3>
+              <h3 className="text-xl font-semibold text-[#303139] dark:text-[#f6f4f4] mb-4">Requirements</h3>
               <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
                 <p className="text-[#303139] dark:text-[#c18f8e] leading-relaxed whitespace-pre-wrap">{job.requirements}</p>
               </div>
@@ -182,7 +182,7 @@ export default function JobDetailPage() {
           {/* Benefits */}
           {job.benefits && (
             <div>
-              <h3 className="text-xl font-semibold text-[#303139] dark:text-[#f6f4f4] mb-4">🎁 Benefits & Perks</h3>
+              <h3 className="text-xl font-semibold text-[#303139] dark:text-[#f6f4f4] mb-4"> Benefits & Perks</h3>
               <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
                 <p className="text-[#303139] dark:text-[#c18f8e] leading-relaxed whitespace-pre-wrap">{job.benefits}</p>
               </div>
@@ -191,7 +191,7 @@ export default function JobDetailPage() {
 
           {/* Job Information Grid */}
           <div className="border-t border-[#76767b] dark:border-[#76767b] pt-6">
-            <h3 className="text-xl font-semibold text-[#303139] dark:text-[#f6f4f4] mb-4">📋 Job Information</h3>
+            <h3 className="text-xl font-semibold text-[#303139] dark:text-[#f6f4f4] mb-4"> Job Information</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <h4 className="font-semibold text-[#303139] dark:text-[#f6f4f4] mb-2">Company</h4>
@@ -200,30 +200,30 @@ export default function JobDetailPage() {
               {job.location && (
                 <div>
                   <h4 className="font-semibold text-[#303139] dark:text-[#f6f4f4] mb-2">Location</h4>
-                  <p className="text-[#303139] dark:text-[#c18f8e]">📍 {job.location}</p>
+                  <p className="text-[#303139] dark:text-[#c18f8e]"> {job.location}</p>
                 </div>
               )}
               {job.job_type && (
                 <div>
                   <h4 className="font-semibold text-[#303139] dark:text-[#f6f4f4] mb-2">Employment Type</h4>
-                  <p className="text-[#303139] dark:text-[#c18f8e]">💼 {job.job_type}</p>
+                  <p className="text-[#303139] dark:text-[#c18f8e]">{job.job_type}</p>
                 </div>
               )}
               {job.experience_level && (
                 <div>
                   <h4 className="font-semibold text-[#303139] dark:text-[#f6f4f4] mb-2">Experience Level</h4>
-                  <p className="text-[#303139] dark:text-[#c18f8e]">🎯 {job.experience_level}</p>
+                  <p className="text-[#303139] dark:text-[#c18f8e]"> {job.experience_level}</p>
                 </div>
               )}
               {job.salary_min && job.salary_max && (
                 <div>
                   <h4 className="font-semibold text-[#303139] dark:text-[#f6f4f4] mb-2">Salary Range</h4>
-                  <p className="text-[#303139] dark:text-[#c18f8e]">💰 {job.salary_min.toLocaleString()} - {job.salary_max.toLocaleString()} {job.salary_currency || 'MYR'}</p>
+                  <p className="text-[#303139] dark:text-[#c18f8e]"> {job.salary_min.toLocaleString()} - {job.salary_max.toLocaleString()} {job.salary_currency || 'MYR'}</p>
                 </div>
               )}
               <div>
                 <h4 className="font-semibold text-[#303139] dark:text-[#f6f4f4] mb-2">Posted Date</h4>
-                <p className="text-[#303139] dark:text-[#c18f8e]">📅 {new Date(job.created_at).toLocaleDateString()}</p>
+                <p className="text-[#303139] dark:text-[#c18f8e]"> {new Date(job.created_at).toLocaleDateString()}</p>
               </div>
             </div>
           </div>

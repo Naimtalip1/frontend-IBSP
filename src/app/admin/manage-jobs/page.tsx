@@ -327,7 +327,7 @@ export default function ManageJobsPage() {
                 <div className="flex-1">
                   <h3 className="text-lg font-medium text-[#2596be]">{job.title}</h3>
                   <p className="text-sm text-gray-600">{job.company}</p>
-                  {job.location && <p className="text-sm text-gray-600">📍 {job.location}</p>}
+                  {job.location && <p className="text-sm text-gray-600"> {job.location}</p>}
                   <p className="text-sm text-gray-500">Posted: {new Date(job.created_at).toLocaleDateString()}</p>
                   
                   <div className="mt-3 grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">

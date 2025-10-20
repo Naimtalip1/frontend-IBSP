@@ -119,7 +119,7 @@ export default function JobsPage() {
               <div className="flex-1">
                 <h3 className="text-xl font-semibold text-[#303139] dark:text-[#f6f4f4] mb-2">{job.title}</h3>
                 <p className="text-sm text-[#76767b] dark:text-[#d8c5c5] mb-1">{job.company}</p>
-                {job.location && <p className="text-sm text-[#76767b] dark:text-[#d8c5c5] mb-3">📍 {job.location}</p>}
+                {job.location && <p className="text-sm text-[#76767b] dark:text-[#d8c5c5] mb-3"> {job.location}</p>}
                 
                 {/* Job info badges */}
                 <div className="flex flex-wrap gap-2 mb-3">
